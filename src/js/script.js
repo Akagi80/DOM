@@ -23,6 +23,10 @@
   /* Petla przechodząca po każdym elemencie dataSource.books z pliku data.js // 10.2 Ćwiczenie 1 // */
   function render() {
     for(let books of dataSource.books) {
+      // stałe ratingBgc i ratingWidth // 10.2.6//
+      books.ratingBgc = determineRatingBgc(books.rating);
+      books.ratingWidth = books.rating * 10;
+      //books.ratingWidth = determineRatingWidth(books.rating);
 
       /* generate HTML base on booksTample (SZABLON) */
       const generatedHTML = templates.booksTemplate(books);
@@ -34,11 +38,9 @@
       const booksContainer = document.querySelector(select.containerOf.booksList);
 
       /* Add DOM element to menu container (.books-list) */
-
       booksContainer.appendChild(generatedDOM);
     }
   }
-  render();
 
   // dodajemy tablicę favoriteBooks w której będą przechowywane książki z klasą favorite // 10.2.2 //
   const favoriteBooks = [];
@@ -93,7 +95,6 @@
       filterBooks();
     });
   }
-  initActions();
   // console.log(favoriteBooks);
 
   // dokończenie - filtrowanie właściwe // 10.2.5 //
@@ -115,4 +116,24 @@
       }
     }
   }
+
+  // funkcja determineRatingBgc(rating) zwracająca odpowiedni background
+  function determineRatingBgc(rating) {
+    let background = '';
+    if(rating<6) {
+      background = 'linear-gradient(to bottom,  #fefcea 0%, #f1da36 100%);';
+    } else if(rating >6 && rating<=8) {
+      background = 'linear-gradient(to bottom, #b4df5b 0%,#b4df5b 100%);';
+    } else if(rating>8 && rating<=9) {
+      background = 'linear-gradient(to bottom, #299a0b 0%, #299a0b 100%);';
+    }  else if(rating>9) {
+      background = 'linear-gradient(to bottom, #ff0084 0%,#ff0084 100%);';
+    }
+    return background;
+  }
+
+  render();
+  determineRatingBgc();
+  //determineRatingWidth();
+  initActions();
 }
