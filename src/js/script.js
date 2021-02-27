@@ -10,6 +10,7 @@
     },
     containerOf: {
       booksList: '.books-list', //box HTML
+      filters: '.filters', // 10.2.5
     },
   };
 
@@ -17,6 +18,7 @@
   const templates = {
     booksTemplate: Handlebars.compile(document.querySelector(select.templateOf.booksTemplate).innerHTML),
   };
+
 
   /* Petla przechodząca po każdym elemencie dataSource.books z pliku data.js // 10.2 Ćwiczenie 1 // */
   function render() {
@@ -41,6 +43,9 @@
   // dodajemy tablicę favoriteBooks w której będą przechowywane książki z klasą favorite // 10.2.2 //
   const favoriteBooks = [];
 
+  // dodajemy tablicę do "wyfiltrowanych" elementów // 10.2.5 //
+  const filters = [];
+
   // tworzymy funkcje initActions odpowwidzialną za nadawanie klasy favorite
   function initActions() {
 
@@ -62,29 +67,52 @@
         clickedElement.classList.remove('favorite');
       }
     });
-    /* const booksImage = booksContainer.querySelectorAll('.book__image');
 
-    for (let image of booksImage){
-      image.addEventListener('dblclick', function(event) {
-        event.preventDefault();
+    // filtrowanie książek // 10.2.5 //
+    const filtersContainer = document.querySelector(select.containerOf.filters);
+    filtersContainer.addEventListener('click', function(event) {
 
-        //jeżeli kliknięty element nie ma 'favorite' dodajemy favorite. // 10.2.2
-        if (!image.classList.contains('favorite')){
-          image.classList.add('favorite');
-          const id = image.getAttribute('data-id');
-          favoriteBooks.push(id);
+      // sprawdzamy czy kliknięty element to nasz checkbox (czy jego tagName to INPUT, type to checkbox, a name to filter) // 10.2.5 //
+      const clickedElement = event.target;
 
-        //jeżeli kliknięty element ma 'favorite' odejmujemy mu favotire. // 10.2.3
+      if(clickedElement.tagName === 'INPUT' && clickedElement.type === 'checkbox' && clickedElement.name ==='filter'){
+        console.log(clickedElement.value);
+
+        // sprawdzamy czy INPUT jest zaznaczony (checked): jeżeli tak to dodajemy "value" do tablicy
+        if(clickedElement.checked){
+          filters.push(clickedElement.value);
+          console.log('filters', filters)
+
+        // jeżeli nie, to usuwamy do z tablicy
         } else {
-          image.classList.remove('favorite');
-          const indexOfid = favoriteBooks.indexOf('id');
-          favoriteBooks.splice(indexOfid, 1);
+          const id = filters.indexOf(clickedElement.value);
+          filters.splice(filters.indexOf(id), 1);
+          console.log('filters', filters);
         }
-      });
-    } */
+      }
+      filterBooks();
+    });
   }
   initActions();
   // console.log(favoriteBooks);
+
+  // dokończenie - filtrowanie właściwe // 10.2.5 //
+  function filterBooks() {
+    for(let book of dataSource.books) {
+      let shouldBeHidden = false; // zmienna która określa czy dodać do książki "hidden"
+
+      for(let filter of filters) {  // pętla sprawdzająca czy filtr pasuje do informacji o danej książce
+        if(!book.details[filter]) { // jak włąściwość DANEJ KSIAŻKI [filter] (aldus lub nonFiction) jest true to...
+          shouldBeHidden = true; // shouldBeHidden zmieniamy na true
+          break; // przerywamy dzaiłanie pętli - pierwszy filtr od razu dyskwalifikuje książkę - wymogi zadania
+        }
+      }
+      // pętla sprawdzająca wartość shouldBeHidden i jezeli jest równa "true" to nadaje jej klasę "hidden" aby ukryć książkę, jeżeli jest "false" to zabiera klasę "hidden"
+      if(shouldBeHidden) {
+        document.querySelector('.book__image[data-id="' + book.id + '"]').classList.add('hidden');
+      } else {
+        document.querySelector('.book__image[data-id="' + book.id + '"]').classList.remove('hidden');
+      }
+    }
+  }
 }
-
-
